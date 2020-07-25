@@ -1,0 +1,471 @@
+<!DOCTYPE html >
+<html>
+	<head>
+	   <title>Test: Isandra Ricos Postres - SPA</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no,user-scalable=no">
+		<meta NAME="DESCRIPTION" CONTENT="Muestra de Pasteles y postres para eventos">
+		<meta NAME="KEYWORDS" CONTENT="Pasteles,Postres">
+		<meta NAME="AUTHOR" CONTENT="Francisco Martinez Brizuela">
+	<!-- Programa test.html     -->
+		<script>
+            var objCart = {};
+            objCart.idUser = 0;
+            objCart.items = []; // arreglo de objIem: {idItem: val, Cantidad: val, Name: val, Precio: val, imgLoc: val}
+            var urlProgValUser = 'http://localhost/isandra/valuser.php';
+            function showMenu1() {
+                let menu1 = document.getElementById('tit1b').classList.toggle('movilmenu1off');
+                document.getElementById('tit1b').classList.toggle('movilmenu1on');
+                cancelFLogin();
+                cancelFRegistro();
+            }
+
+            function showMenu2() {
+                let menu2 = document.getElementsByTagName('nav');
+                menu2[0].classList.toggle('movilmenu2on');
+                cancelFLogin();
+                cancelFRegistro();
+            }
+
+            function showFLogin() {
+                cancelFRegistro();
+                clearErrFieldsFLogin();
+                document.getElementById('flogin').style.display = 'flex';
+            }
+
+            function cancelFLogin() {
+                document.getElementById('flogin').style.display = 'none';
+                document.getElementById('inpEmail1').value = '';
+                document.getElementById('inpPW1').value = '';
+            }
+
+            function procesaIniciaSesion() {
+                clearErrFieldsFLogin();   // Borra campos con error antes de validar
+                var errflag = 0;
+                let email = document.getElementById('inpEmail1').value;
+                if (email == '') {
+                    document.getElementById('errNoEmail1').classList.remove('nodisp');
+                    errflag = 1;             
+                } else  if (email.search(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) < 0) {
+                    document.getElementById('errBadEmail1').classList.remove('nodisp');
+                    errflag = 1;             
+                }
+                let pw = document.getElementById('inpPW1').value;
+                if (pw == '' || pw.length <= 3) {
+                    document.getElementById('errNoPW1').classList.remove('nodisp');
+                    errflag = 1;             
+                }
+                if (errflag == 1) return false;
+                let postData = '{"modo":"1","email":"' + email + '","pw":"' + pw + '"}';
+                console.log(postData);
+                loadurls(urlProgValUser, convTxt2JSON_Login, postData);
+            }
+
+            function clearErrFieldsFLogin() {
+                document.getElementById('errNoEmail1').classList.add('nodisp');
+                document.getElementById('errBadEmail1').classList.add('nodisp');
+                document.getElementById('errNoPW1').classList.add('nodisp');
+                document.getElementById('errNoUser').classList.add('nodisp');
+            }
+
+            function showFRegistro() {
+                cancelFLogin();
+                clearErrFieldsFRegistro
+                document.getElementById('fregistro').style.display = 'flex';
+            }
+
+            function cancelFRegistro() {
+                document.getElementById('fregistro').style.display = 'none';
+                document.getElementById('inpName').value = '';
+                document.getElementById('inpEmail2').value = '';
+                document.getElementById('inpPW2').value = '';
+
+            }
+
+            function procesaRegistro() {
+                clearErrFieldsFRegistro();   // Borra campos con error antes de validar
+                var errflag = 0;
+                let name = document.getElementById('inpName').value;
+                if (name == '') {
+                    document.getElementById('errNoName1').classList.remove('nodisp');
+                    errflag = 1;             
+                }
+                let email = document.getElementById('inpEmail2').value;
+                if (email == '') {
+                    document.getElementById('errNoEmail2').classList.remove('nodisp');
+                    errflag = 1;             
+                } else  if (email.search(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) < 0) {
+                    document.getElementById('errBadEmail2').classList.remove('nodisp');
+                    errflag = 1;             
+                }
+                let pw = document.getElementById('inpPW2').value;
+                if (pw == '' || pw.length <= 3) {
+                    document.getElementById('errNoPW2').classList.remove('nodisp');
+                    errflag = 1;             
+                }
+                if (errflag == 1) return false;
+                let postData = '{"modo":"2","name":"' + name + '","email":"' + email + '","pw":"' + pw + '"}';
+                console.log(postData);
+                loadurls(urlProgValUser, convTxt2JSON_Registro, postData);
+            }
+
+            function clearErrFieldsFRegistro() {
+                document.getElementById('errNoName1').classList.add('nodisp');
+                document.getElementById('errNoEmail2').classList.add('nodisp');
+                document.getElementById('errBadEmail2').classList.add('nodisp');
+                document.getElementById('errNoPW2').classList.add('nodisp');
+                document.getElementById('errFallaEnAlta').classList.add('nodisp');
+            }
+
+
+            function screenSize() {
+                const width  = window.innerWidth || document.documentElement.clientWidth || 
+                                document.body.clientWidth;
+                const height = window.innerHeight|| document.documentElement.clientHeight|| 
+                                document.body.clientHeight;
+
+                console.log(width, height);
+            }
+
+            				// Funcion que usara ajax para ejecutar las clases que pasaran datos
+				// Cuando leemos, recibimos los datoss en formato JSON
+				// Parametros: url = dirección en el server a ejecutar
+				//             callback = función que se ejecutara al terminar para procesar la respuesta
+				//             postData = datos a enviar con un POST, en caso de no querer un post, debe omitirse
+				// Ejemplos: Para llamar con GET:  loadurs(url, callback);
+				//				Si llamamos con GET y queremos enviar parametros, estos deben ir en el url en la forma:
+				//				url+?par1=val1&par2=val2  Ej: "demo_get2.asp?fname=Henry&lname=Ford"
+				//           Para llamar con POST: loadurs(url, callback, postData); donde postData debe estar en formato JSON
+				//				Ej:  {"idPer":"1","Organiza":"ORACLE","NomAP":"Aguilar","NomAM":"De la rosa","Nom1":"Oscar","Nom2":""}
+				//				Nota: si queremos mandar texto, o XML hay que cambiar el Content-type en el setRequestHeader.
+                //                  Por ejemplo, si queremos mandarlos como los enviaría una forma, deberian estar como un
+                //                  query string (como en el get) y el content-type sería: ("Content-type", "application/x-www-form-urlencoded")
+			function loadurls(url, callback, postData) {
+					var xmlhttp = new XMLHttpRequest();
+					var metodo = (postData) ? "POST" : "GET";
+					xmlhttp.onreadystatechange = function () {
+						if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+							callback(xmlhttp.responseText);
+						}
+					}
+					xmlhttp.open(metodo, url, true);
+					if (metodo == "POST") {
+						xmlhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+						//xmlhttp.setRequestHeader("Content-length", postData.length);
+						//xmlhttp.setRequestHeader("Connection", "close");
+					}
+					xmlhttp.send(postData);
+				}
+				// función de callback al llamado a Ajax, que convierte texto a objeto
+			function convTxt2JSON_Login(datos){
+                console.log(datos);
+                var objRespuesta = JSON.parse(datos);
+                if (objRespuesta.valido == 'SI') {
+                    cancelFLogin();
+                } else {
+                    document.getElementById('errNoUser').classList.remove('nodisp');
+                }
+			}
+
+            function convTxt2JSON_Registro(datos){
+                console.log(datos);
+                var objRespuesta = JSON.parse(datos);
+                if (objRespuesta.valido == 'SI') {
+                    cancelFRegistro();
+                } else {
+                    document.getElementById('errFallaEnAlta').classList.remove('nodisp');
+                }
+			}
+
+
+            function showCart() {
+                var html = '';
+                var total = 0.0;
+                //console.log('Items en CC: ' + objCart.items.length);
+                if (objCart.items.length == 0) {
+                    document.getElementById('caritoTitulo').innerText = 'El Carrito esta vacío.';
+                } else {
+                    document.getElementById('ccarrito').classList.add('sidisp');
+                    document.getElementById('ccarrito').classList.remove('nodisp');
+                    document.getElementById('caritoTitulo').innerText = 'Contenido del Carrito';
+                    html =  '<p></p><p>Nombre</p><p class="txc">Cant.</p><p class="txd">Total</p>';
+                    for (let ix = 0; ix < objCart.items.length; ix++) {
+                        html += '<img src="' + objCart.items[ix].imgLoc + '">';
+                        html += '<p>' + objCart.items[ix].Name + '</p>';
+                        html += '<p class="txc">' + objCart.items[ix].Cantidad + '</p>';
+                        html += '<p class="txd">' + formatMoney(objCart.items[ix].Precio, 2, ',', '.') + '</p>';
+                        total += objCart.items[ix].Cantidad * objCart.items[ix].Precio;
+                    }
+                    html += '<p></p><p>TOTAL</p><p></p><p class="txd">$' + formatMoney(total, 2, ',', '.') + '</p>';
+                    html += '<p></p><button onclick="ProcesaCompra();">Proceder a la Compra</button>';
+                }
+                document.getElementById('ccarrito').innerHTML = html;
+                document.getElementById('fcarrito').classList.add('sidisp');
+                document.getElementById('fcarrito').classList.remove('nodisp'); 
+
+            }
+
+            function cancelCart() {
+                document.getElementById('fcarrito').classList.add('nodisp');
+            }
+
+            function addItem2Cart(iditem, cantidad, name, precio, imgloc) {
+                var objItem = {};   // {idItem: val, Cantidad: val, Name: val, Precio: val}
+                objItem.idItem = iditem;
+                objItem.Cantidad = cantidad;
+                objItem.Name = name;
+                objItem.Precio = precio;
+                objItem.imgLoc = imgloc;
+                objCart.items.push(objItem);
+                let total = 0.0;
+                for (let ix = 0; ix < objCart.items.length; ix++) {
+                    total += objCart.items[ix].Cantidad * objCart.items[ix].Precio;
+                }
+                document.getElementById('vtotal').innerText = '$' + formatMoney(total, 2, ',', '.');
+            }
+
+                    // Tomada de: https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
+
+        formatMoney = function(num, decPlaces, thouSeparator, decSeparator) 
+        {
+            var n = num;
+            decPlaces = isNaN(decPlaces = Math.abs(decPlaces)) ? 2 : decPlaces;
+            decSeparator = decSeparator == undefined ? "." : decSeparator;
+            thouSeparator = thouSeparator == undefined ? "," : thouSeparator;
+            var sign = n < 0 ? "-" : "";
+            var i = parseInt(n = Math.abs(+n || 0).toFixed(decPlaces)) + "";
+            var j = (j = i.length) > 3 ? j % 3 : 0;
+            return sign + (j ? i.substr(0, j) + thouSeparator : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thouSeparator) + (decPlaces ? decSeparator + Math.abs(n - i).toFixed(decPlaces).slice(2) : "");
+        }
+
+        function isNumeric(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+
+        // Me dice si el número (no string) es entero o no.
+        function isInteger(n) {
+           return Number.isInteger(n);
+        }
+
+        function genItems() {
+            addItem2Cart(1, 1, 'Pastel de Chocolate', 350.0, 'Imagenes/P-chocolate.jpg');
+            addItem2Cart(3, 1, 'Caja de 18 Brownies', 300.0, 'Imagenes/Brownies18.jpg');
+            addItem2Cart(18, 1, 'Empanadas de Cajeta', 450.0, 'Imagenes/Empanadas.jpg');
+        }
+
+		</script>
+		<style>
+            nav {display: none;}
+            .movilmenu1on {display: block; position: fixed; top: 50px; right: 0; 
+                        z-index: 115; background-color: var(--bgtitulo2); padding: 5px;
+                        border: 1px solid #999999;}
+            .movilmenu2on {display: block;}
+            .movilmenu1off {display: none;}
+
+            #titulo {display: flex; flex-flow: row nowrap; width: 100%;}
+            #tit1 {display: inline-block; width: 80%;}
+            #tit1a {display: inline-block; border: 1px solid #999999;}
+            header {display: flex; flex-flow: row nowrap; align-items: center;}
+            #tit1 img, #cart1, #tit1a, #imgmenu1 {max-width: 32px; max-height: 36px;}
+            #isesion {max-width: 106px; max-height: 3opx; vertical-align: middle;}
+            #cart1, #tit1a {vertical-align: middle;}
+            #vtotal {height: 30px; width: 50px;}
+            header { background-image: linear-gradient(to right, var(--bgtitulo1), var(--bgtitulo2));
+					border: 1px solid #999999;  border-radius: 15px;
+					height: 50px; box-shadow: rgb(150,150,150) 5px 5px 10px;}
+
+            #tit1 { font-family: "Lucida Handwriting", cursive; font-weight: bold;font-size:1.0em; color:#990000;
+					text-align: center;  
+					text-shadow: rgba(150,150,150,0.5) 3px 3px 5px; }
+            #navmenu {margin-top: 60px;}
+            .list-item {display: inline-block; list-style: none; text-align: center; 
+                font-weight: bold; font-size: 1em; background-color: var(--bgmenu); }
+            
+            li {border : 1px solid #7c2424;}   /* ver 3 en @media */
+            
+
+			/* Variables con background utilizados	*/
+			body {--bgfondo: #FFFFFC; --bgtitulo1: #FFFBB9; --bgtitulo2: #FFFFFC;
+					--bgpie: #FFFBB9; --bgmenu: #CCCCCC; --bgmenuhover: #EEEEEE;
+					--bgmensaje: #FFFFFC;
+					--sizemovil: 100%; --sizeNOmovil: 50%;
+			}
+			* {box-sizing: border-box; padding: 0; border: 0; margin: 0; }
+			#inicio, #productos, #especiales, #contacto{display: none;}  
+			img {width: 100%; height: auto;}
+			/* Marcos para poner fondo */
+			#bigbox1 {margin: 0; background-color: var(--bgfondo) ; width: 100%; margin: 0 auto;}
+			#productos, #especiales, #contacto {width: 100%;}
+			.contenedor1 {display: flex; flex-flow: row wrap; justify-content: space-between;
+							margin: 10px;}
+            .contenedor2 {display: flex; flex-flow: row wrap; margin: 10px; justify-content: center;}
+            
+			
+            #img1 {float: left; margin: 0px 0 0 10px; display: none;}
+            #imgmenu1 {float: left; margin: 0px 0 0 10px; display: block;}
+
+			.varsize {width: var(--sizemovil);}
+			#contacto div {width: var(--sizemovil);}
+			#fig3, #fig4 {width: var(--sizemovil); }
+            .list-item {width: 100%; }
+            #flogin {display: none; flex-flow: column ; width: 100%; background-color: var(--bgfondo); 
+                    padding: 10px; margin-top: 50px; z-index: 120; position: fixed; right: 0;
+                    border: 1px solid #999999;}
+            #flogin h3{text-align: center; }
+            #btnIniciar {background-color: var(--bgmenu); margin: 20px; text-align: center; padding: 5px; border: 1px solid #999999;}
+            #flogin button {background-color: var(--bgmenu); margin: 1px;padding: 5px; border: 1px solid #999999;}
+            #inpEmail1, #inpPW1 {background-color: var(--bgtitulo1);}
+
+            #fregistro {display: none; flex-flow: column ; width: 100%; background-color: var(--bgfondo); 
+                    padding: 10px; margin-top: 50px; z-index: 120; position: fixed; right: 0;
+                    border: 1px solid #999999;}
+            #fregistro h3{text-align: center; }
+            #btnRegistro {background-color: var(--bgmenu); margin: 20px; padding: 5px; border: 1px solid #999999;}
+            #inpEmail2, #inpPW2, #inpName {background-color: var(--bgtitulo1);}
+
+            .sidisp {display: block; }
+            .nodisp {display: none;}
+            .txbg-red { background-color: red;}
+            
+            #fcarrito {width: 100%; background-color: var(--bgfondo); 
+                padding: 10px; margin-top: 50px; z-index: 120; position: fixed; right: 0;
+                    border: 1px solid #999999;}
+            .carritoContenido {display: grid; grid-template-columns: auto auto auto auto; grid-gap: 5px;}
+            .carritoContenido img {max-width: 40px; max-height: auto; }
+            .txc {text-align: center;}
+            .txd {text-align: right;}
+            header {position: fixed; top: 0px; width: 100%; z-index: 110;}
+            #tit1b a {text-decoration: none;}
+			@media(min-width: 768px) {
+                nav {display: block;}
+				#bigbox1 {width: 80%;}
+				#tit1 {font-size: 1.8em; height: 60px; padding: 10px;}
+                #img1 {float: left; margin: 0px 0 0 10px; display:block;}
+                #imgmenu1 {float: left; margin: 0px 0 0 10px; display:none;}
+				.varsize {width: var(--sizeNOmovil);}
+				#contacto div {width: var(--sizeNOmovil);}
+				#fig3, #fig4 {width: var(--sizeNOmovil); }
+				.list-item {width: 25%; padding: 5px;}
+                header {width: 80%;}
+                #tit1b {display: block;}
+                li:nth-child(1)	{border : 1px solid #7c2424; border-radius: 15px 0 0 15px; }
+			    li:nth-child(2), li:nth-child(3)	{border : 1px solid #7c2424; }
+                li:nth-child(4)	{border : 1px solid #7c2424; border-radius: 0 15px 15px 0; }
+                #tit1a {display: none;}
+                #titulo {width: 70%;}
+                #tit1b, #flogin, #fregistro {width: 30%;}
+                #fcarrito {width: 40%;}
+			}
+			.figura, .cuadro2A {width: 90%;}
+			.figura img {width: 100%; height: auto; padding: 10px;}
+			#navmenu li:hover {background-color: var(--bgmenuhover); }
+			
+			/*   TITULO DE LA PAGINA   */
+			/*    PIE DE LA PAGINA      */
+			#pie1 { font-family: "Lucida Handwriting", cursive; font-size:10pt; color:#4F81BD; text-align: center;
+							background-color: var(--bgpie); border: 1px solid #999999; padding: 1px; border-radius: 15px; }
+			#pie1r3 {text-align : right; padding: 0px 20px 0px 0px;}
+
+			.cuadro2A input {font-family:  Arial; font-weight: bold; font-size:1em; color:#4F81BD; background-color:#FFFFCC ;
+								border : 0; width: 100%;}
+			.desc2 { height: 70px; width : 100%; margin : 0px 0px 10px 0px; text-align: left; background-color:#FFFFFF;
+					font-weight: normal; font-size:10pt; 	color:#4F81BD; position: relative;}
+			.precio {text-align: right; position: absolute; bottom: 10px; right: 20px; color: blue; font-style: italic;}
+
+			#img3, #img4 {width: 100%; height: auto;}
+			#fig6 {width: 320px; height: auto;}
+            .mensaje1 { color:#4F81BD; background-color: var(--bgmensaje);}
+
+            .closex {color: #aaaaaa;  font-size: 28px; font-weight: bold; }
+        
+            .closex:hover, .closex:focus {color: #000; text-decoration: none; cursor: pointer; }
+
+            .numberCircle { border-radius: 50%; width: 36px; height: 36px; padding: 8px;
+                             background: #fff; border: 2px solid #666; color: #666;
+                            text-align: center; font: 32px Arial, sans-serif; }
+
+            button, input[type="button"] {background-color: gray; font-weight: bold;
+                                        border: 1px solid #999999;  border-radius: 15px;}
+            
+			div a[href="https://www.freewebhostingarea.com"] {
+				display: none;
+			}
+
+		</style>
+	</head>
+	<body >
+        <div id="bigbox1">
+			<div >
+				<header>
+                    <div id="titulo">
+                        <p id="tit1"> <a href="#" ><img id="img1" alt="Logo" src=Imagenes/pastelillo1.png >
+                            <img id="imgmenu1" alt="menu" src="Imagenes/130-list.svg" onclick="showMenu2();"></a>ISandra  Ricos Postres</p>
+                        <a href="#" ><img id="tit1a" alt="Menu" src="imagenes/148-menu.svg" onclick="showMenu1();"></a>
+                    </div>
+                    <div id="tit1b" class="movilmenu1off"><a href="#" ><img id="isesion" alt="Iniciar Sesión" src="imagenes/isesion.png" 
+                        onclick="showFLogin();"></a>
+                        <a href="#" onclick="showCart();"><img id="cart1" alt="carrito" src="imagenes/cart.svg"> <span id="vtotal">$0.00</span></a>
+                    </div>
+                </header>
+				<nav>
+					<ul id="navmenu" class="contenedor2" >
+						<li onclick="objIsandra.showInicio()" id="liinicio" class="list-item"><a   href="#">INICIO</a> </li>
+						<li onclick="objIsandra.showProductos()" id="liproductos" class="list-item"><a   href="#">PRODUCTOS</a></li>
+						<li onclick="objIsandra.showEspeciales()" class="list-item"><a   href="#">ESPECIALES</a> </li>
+						<li onclick="objIsandra.showContacto()" class="list-item"><a   href="#">CONTÁCTO</a></li>
+					</ul>
+				</nav>
+            </div>
+        </div>
+        <div id="flogin">
+            <p class="closex txd" onclick="cancelFLogin();">&times;</p>
+
+            <h3>Iniciar Sesión</h3>
+            <label for="inpEmail1">Email:</label>
+            <input id="inpEmail1" name="email" type="email" placeholder="Email en la forma usuario@servicio" value="">
+            <p class="nodisp  txbg-red" id="errNoEmail1">Error: El Email es obligatorio</p>
+            <p class="nodisp  txbg-red" id="errBadEmail1">Error: La forma del email debe ser: usuario@servicio</p>
+
+            <label for="inpPW1">Password:</label>
+            <input id="inpPW1" name="pw" type="password" placeholder="Entre su password" value="">
+            <p class="nodisp txbg-red" id="errNoPW1">Error: El Password es obligatorio y mayor de 3 caractere</p>
+
+            <div class="txc">
+                <input id="btnIniciar" value="Iniciar" type="button" onclick="procesaIniciaSesion();">
+            </div>
+            <p class="nodisp  txbg-red" id="errNoUser">Error: El Email / Password es incorrecto</p>
+            <p>Si no está registrado, presione: <button onclick="showFRegistro();">Registro</button></p>
+        </div>
+        <div id="fregistro">
+            <p class="closex txd" onclick="cancelFRegistro();">&times;</p>
+
+            <h3>Favor de Registrarse</h3>
+            <label for="inpName">Nombre:</label>
+            <input id="inpName" type="text" placeholder="Entre Nombre completo" value="">
+            <p class="nodisp  txbg-red" id="errNoName1">Error: El Nombre es obligatorio</p>
+
+            <label for="inpEmail2">Email:</label>
+            <input id="inpEmail2" type="email" placeholder="Entre su Email en la forma usuario@servicio" value="">
+            <p class="nodisp  txbg-red" id="errNoEmail2">Error: El Email es obligatorio</p>
+            <p class="nodisp  txbg-red" id="errBadEmail2">Error: Error: La forma del email debe ser: usuario@servicio</p>
+
+            <label for="inpPW2">Password:</label>
+            <input id="inpPW2" type="password" placeholder="Password de al menos 3 caracteres" value="">
+            <p class="nodisp  txbg-red" id="errNoPW2">Error: El Password es obligatorio y mayor de 3 caracteres</p>
+
+            <div class="txc">
+                <input id="btnRegistro" value="Registrar" type="button" onclick="procesaRegistro();">
+            </div>
+            <p class="nodisp  txbg-red" id="errFallaEnAlta">Error: Problemas en la alta</p>
+        </div>
+        <div id="fcarrito" class="nodisp">
+            <p class="closex txd" onclick="cancelCart()">&times;</p>
+
+            <h3 id="caritoTitulo">fmb Contenido del Carrito</h3>
+            <div id="ccarrito" class="carritoContenido">
+            </div>
+
+        </div>
+        <script> genItems();   </script>
+	</body>
+    </html>
